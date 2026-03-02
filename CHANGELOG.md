@@ -6,6 +6,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [0.27.2](https://github.com/mattogodoy/nametag/compare/v0.27.1...v0.27.2) (2026-03-02)
+
+
+### Bug Fixes
+
+* use modal for editing user relationship instead of navigating to edit page ([bc86e30](https://github.com/mattogodoy/nametag/commit/bc86e3062a5e1c35800bdb0d28c470086241703d))
+
+## [0.27.1](https://github.com/mattogodoy/nametag/compare/v0.27.0...v0.27.1) (2026-03-02)
+
+
+### Bug Fixes
+
+* add missing afterEach import in email test files ([84bd6c3](https://github.com/mattogodoy/nametag/commit/84bd6c3c7630690a02b1906a865f18da9125c9dc))
+* add retry with backoff to Resend emails and batch API for cron reminders ([5b8b1f9](https://github.com/mattogodoy/nametag/commit/5b8b1f96c7bfa8b4ca99a8de72feb120c6b3d0b3))
+* simplify AI release summary to run directly on release creation ([1f81b47](https://github.com/mattogodoy/nametag/commit/1f81b4718d283b33d229a87c088adbeeba791501))
+
 ## [0.27.0](https://github.com/mattogodoy/nametag/compare/v0.26.1...v0.27.0) (2026-03-01)
 
 
