@@ -1081,6 +1081,13 @@
       "loadingContacts": "Kontakte werden geladen...",
       "personNotFound": "Einer oder beide Kontakte konnten nicht gefunden werden.",
       "missingParams": "Fehlende Kontaktparameter. Bitte wählen Sie zwei Kontakte zum Zusammenführen aus."
+    },
+    "photo": {
+      "cropTitle": "Foto zuschneiden",
+      "zoom": "Zoom",
+      "cancel": "Abbrechen",
+      "confirm": "Speichern",
+      "processing": "Verarbeitung..."
     }
   },
   "groups": {

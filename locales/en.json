@@ -1081,6 +1081,13 @@
       "loadingContacts": "Loading contacts...",
       "personNotFound": "One or both contacts could not be found.",
       "missingParams": "Missing contact parameters. Please select two contacts to merge."
+    },
+    "photo": {
+      "cropTitle": "Crop Photo",
+      "zoom": "Zoom",
+      "cancel": "Cancel",
+      "confirm": "Save",
+      "processing": "Processing..."
     }
   },
   "groups": {

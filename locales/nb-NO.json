@@ -1081,6 +1081,13 @@
       "loadingContacts": "Laster kontakter...",
       "personNotFound": "Én eller begge kontaktene ble ikke funnet.",
       "missingParams": "Manglende kontaktparametere. Velg to kontakter å slå sammen."
+    },
+    "photo": {
+      "cropTitle": "Beskjær bilde",
+      "zoom": "Zoom",
+      "cancel": "Avbryt",
+      "confirm": "Lagre",
+      "processing": "Behandler..."
     }
   },
   "groups": {
