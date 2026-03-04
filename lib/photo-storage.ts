@@ -8,6 +8,8 @@ import { createModuleLogger } from './logger';
 const log = createModuleLogger('photos');
 
 const MAX_PHOTO_SIZE = 10 * 1024 * 1024; // 10MB
+const PHOTO_SIZE = 256;
+const JPEG_QUALITY = 80;
 const FETCH_TIMEOUT_MS = 15000;
 
 const MIME_TO_EXT: Record<string, string> = {
@@ -75,10 +77,11 @@ function parsePhotoData(photoData: string): { buffer: Buffer; ext: string } | nu
 }
 
 /**
- * Detect image extension from magic bytes
+ * Detect image format from magic bytes
+ * Returns the format ('jpg', 'png', 'gif', 'webp') or null for unknown formats
  */
-function detectImageExtension(buffer: Buffer): string {
-  if (buffer.length < 4) return 'jpg';
+function detectFormat(buffer: Buffer): string | null {
+  if (buffer.length < 4) return null;
 
   // JPEG: FF D8 FF
   if (buffer[0] === 0xFF && buffer[1] === 0xD8 && buffer[2] === 0xFF) return 'jpg';
@@ -90,7 +93,15 @@ function detectImageExtension(buffer: Buffer): string {
   if (buffer[0] === 0x52 && buffer[1] === 0x49 && buffer[2] === 0x46 && buffer[3] === 0x46 &&
       buffer.length >= 12 && buffer[8] === 0x57 && buffer[9] === 0x45 && buffer[10] === 0x42 && buffer[11] === 0x50) return 'webp';
 
-  return 'jpg';
+  return null;
+}
+
+/**
+ * Detect image extension from magic bytes
+ * Returns the detected format or defaults to 'jpg' for unknown formats
+ */
+function detectImageExtension(buffer: Buffer): string {
+  return detectFormat(buffer) ?? 'jpg';
 }
 
 /**
@@ -98,24 +109,12 @@ function detectImageExtension(buffer: Buffer): string {
  * by inspecting magic bytes. Returns false for unknown formats and SVGs.
  */
 export function isValidImageBuffer(buffer: Buffer): boolean {
-  if (buffer.length < 4) return false;
-
-  // JPEG: FF D8 FF
-  if (buffer[0] === 0xFF && buffer[1] === 0xD8 && buffer[2] === 0xFF) return true;
-  // PNG: 89 50 4E 47
-  if (buffer[0] === 0x89 && buffer[1] === 0x50 && buffer[2] === 0x4E && buffer[3] === 0x47) return true;
-  // GIF: 47 49 46
-  if (buffer[0] === 0x47 && buffer[1] === 0x49 && buffer[2] === 0x46) return true;
-  // WebP: 52 49 46 46 ... 57 45 42 50
-  if (buffer[0] === 0x52 && buffer[1] === 0x49 && buffer[2] === 0x46 && buffer[3] === 0x46 &&
-      buffer.length >= 12 && buffer[8] === 0x57 && buffer[9] === 0x45 && buffer[10] === 0x42 && buffer[11] === 0x50) return true;
-
-  return false;
+  return detectFormat(buffer) !== null;
 }
 
 /**
  * Process a photo buffer: validate format, enforce size limit,
- * resize to 256x256 (cover), convert to JPEG at 80% quality, strip EXIF.
+ * resize to PHOTO_SIZE x PHOTO_SIZE (cover), convert to JPEG at JPEG_QUALITY, strip EXIF.
  * Throws on invalid input.
  */
 export async function processPhoto(buffer: Buffer): Promise<Buffer> {
@@ -128,9 +127,9 @@ export async function processPhoto(buffer: Buffer): Promise<Buffer> {
   }
 
   return sharp(buffer)
-    .resize(256, 256, { fit: 'cover' })
+    .resize(PHOTO_SIZE, PHOTO_SIZE, { fit: 'cover' })
     .rotate() // auto-rotate based on EXIF before stripping
-    .jpeg({ quality: 80 })
+    .jpeg({ quality: JPEG_QUALITY })
     .toBuffer();
 }
 
