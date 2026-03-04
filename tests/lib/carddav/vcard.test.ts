@@ -5,6 +5,7 @@
 import { describe, it, expect } from 'vitest';
 import { personToVCard, vCardToPerson } from '@/lib/vcard';
 import type { PersonWithRelations } from '@/lib/carddav/types';
+import type { UnknownProperty } from '@/lib/carddav/vcard-parser';
 
 describe('vCard Transformation', () => {
   describe('personToVCard', () => {
@@ -664,6 +665,106 @@ END:VCARD`;
       const reXmpp = reParsed.imHandles.find(im => im.protocol === 'xmpp');
       expect(reXmpp).toBeDefined();
       expect(reXmpp!.handle).toBe('doc@jabber.org');
+    });
+  });
+
+  describe('preserved properties round-trip', () => {
+    it('should include preservedProperties in generated vCard', () => {
+      const person: PersonWithRelations = {
+        id: 'test-id',
+        userId: 'user-1',
+        name: 'Test',
+        surname: 'User',
+        middleName: null,
+        secondLastName: null,
+        nickname: null,
+        prefix: null,
+        suffix: null,
+        uid: 'test-uid',
+        organization: null,
+        jobTitle: null,
+        photo: null,
+        gender: null,
+        anniversary: null,
+        lastContact: null,
+        notes: null,
+        relationshipToUserId: null,
+        contactReminderEnabled: false,
+        contactReminderInterval: null,
+        contactReminderIntervalUnit: null,
+        lastContactReminderSent: null,
+        cardDavSyncEnabled: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        deletedAt: null,
+        phoneNumbers: [],
+        emails: [],
+        addresses: [],
+        urls: [],
+        imHandles: [],
+        locations: [],
+        customFields: [],
+        importantDates: [],
+        relationshipsFrom: [],
+        groups: [],
+      };
+
+      const preservedProperties: UnknownProperty[] = [
+        { key: 'CLASS', value: 'PUBLIC', params: {} },
+        { key: 'PROFILE', value: 'VCARD', params: {} },
+      ];
+
+      const result = personToVCard(person, { preservedProperties });
+      expect(result).toContain('CLASS:PUBLIC');
+      expect(result).toContain('PROFILE:VCARD');
+    });
+
+    it('should include group prefix and params in preserved properties', () => {
+      const person: PersonWithRelations = {
+        id: 'test-id',
+        userId: 'user-1',
+        name: 'Test',
+        surname: 'User',
+        middleName: null,
+        secondLastName: null,
+        nickname: null,
+        prefix: null,
+        suffix: null,
+        uid: 'test-uid',
+        organization: null,
+        jobTitle: null,
+        photo: null,
+        gender: null,
+        anniversary: null,
+        lastContact: null,
+        notes: null,
+        relationshipToUserId: null,
+        contactReminderEnabled: false,
+        contactReminderInterval: null,
+        contactReminderIntervalUnit: null,
+        lastContactReminderSent: null,
+        cardDavSyncEnabled: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        deletedAt: null,
+        phoneNumbers: [],
+        emails: [],
+        addresses: [],
+        urls: [],
+        imHandles: [],
+        locations: [],
+        customFields: [],
+        importantDates: [],
+        relationshipsFrom: [],
+        groups: [],
+      };
+
+      const preservedProperties: UnknownProperty[] = [
+        { key: 'X-CUSTOM', value: 'test', group: 'item5', params: { TYPE: 'pref' } },
+      ];
+
+      const result = personToVCard(person, { preservedProperties });
+      expect(result).toContain('item5.X-CUSTOM;TYPE=pref:test');
     });
   });
 

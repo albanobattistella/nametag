@@ -13,6 +13,7 @@
  */
 
 import type { PersonWithRelations, ParsedVCardData } from './carddav/types';
+import type { UnknownProperty } from './carddav/vcard-parser';
 import { parseVCard } from './carddav/vcard-parser';
 
 export interface VCardOptions {
@@ -20,6 +21,7 @@ export interface VCardOptions {
   includeCustomFields?: boolean; // Default: true (X- properties)
   stripMarkdown?: boolean; // Default: false
   photoDataUri?: string; // Pre-loaded photo data URI for file-based photos
+  preservedProperties?: UnknownProperty[]; // Round-trip unknown vCard properties
 }
 
 const DEFAULT_OPTIONS: VCardOptions = {
@@ -258,6 +260,18 @@ export function personToVCard(
     // This extension allows apps to distinguish between surname and secondLastName on re-import
     if (person.secondLastName) {
       lines.push(buildV3Property('X-NAMETAG-SECOND-LASTNAME', {}, person.secondLastName));
+    }
+  }
+
+  // Re-emit preserved unknown properties for round-tripping
+  if (opts.preservedProperties) {
+    for (const prop of opts.preservedProperties) {
+      const groupPrefix = prop.group ? `${prop.group}.` : '';
+      const paramsStr = Object.entries(prop.params)
+        .map(([k, v]) => `${k}=${Array.isArray(v) ? v.join(',') : v}`)
+        .join(';');
+      const params = paramsStr ? `;${paramsStr}` : '';
+      lines.push(`${groupPrefix}${prop.key}${params}:${prop.value}`);
     }
   }
 
