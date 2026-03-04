@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import { createCardDavClient } from './client';
 import { personToVCard, vCardToPerson } from '@/lib/vcard';
+import { parseVCard } from '@/lib/carddav/vcard-parser';
 import { withRetry, categorizeError } from './retry';
 import { readPhotoForExport, isPhotoFilename } from '@/lib/photo-storage';
 import { updatePersonFromVCard } from './person-from-vcard';
@@ -144,6 +145,7 @@ export async function syncFromServer(
       try {
         // Parse vCard
         const parsedData = vCardToPerson(vCard.data);
+        const parsedEnhanced = parseVCard(vCard.data);
 
         onProgress?.({
           phase: 'pull',
@@ -278,6 +280,9 @@ export async function syncFromServer(
                 lastSyncedAt: new Date(),
                 remoteVersion: remoteHash,
                 syncStatus: 'synced',
+                preservedProperties: parsedEnhanced.unknownProperties.length > 0
+                  ? parsedEnhanced.unknownProperties
+                  : null,
               },
             });
 
