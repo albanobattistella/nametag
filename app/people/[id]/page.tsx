@@ -128,6 +128,7 @@ export default async function PersonDetailsPage({
       name: true,
       surname: true,
       nickname: true,
+      photo: true,
     },
   });
   const dateFormat = user?.dateFormat || 'MDY';
@@ -271,6 +272,7 @@ export default async function PersonDetailsPage({
         userEmail={session.user.email || undefined}
         userName={session.user.name}
         userNickname={session.user.nickname}
+        userPhoto={session.user.photo}
         currentPath="/people"
       />
 
@@ -727,6 +729,8 @@ export default async function PersonDetailsPage({
                     personName={formatGraphName(person)}
                     relationshipToUser={relationshipToUser}
                     relationshipTypes={relationshipTypes}
+                    userName={user?.name || ''}
+                    userPhoto={user?.photo || null}
                   />
                 )}
 
@@ -742,6 +746,7 @@ export default async function PersonDetailsPage({
                     name: user?.name || '',
                     surname: user?.surname || null,
                     nickname: user?.nickname || null,
+                    photo: user?.photo || null,
                   }}
                   hasUserRelationship={!!person.relationshipToUserId}
                 />

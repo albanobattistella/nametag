@@ -46,6 +46,7 @@ interface RelationshipManagerProps {
     name: string;
     surname?: string | null;
     nickname?: string | null;
+    photo?: string | null;
   };
   hasUserRelationship?: boolean;
 }

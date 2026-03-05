@@ -73,7 +73,7 @@ export default function PersonAvatar({
           loading={loading}
           onLoad={() => setLoaded(true)}
           onError={() => setErrored(true)}
-          className={`rounded-full object-cover transition-opacity duration-300 ${
+          className={`rounded-full object-cover bg-white dark:bg-black transition-opacity duration-300 ${
             loaded ? 'opacity-100' : 'opacity-0'
           }`}
           style={{ width: size, height: size }}

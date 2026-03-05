@@ -117,7 +117,7 @@ export function isValidImageBuffer(buffer: Buffer): boolean {
  * resize to PHOTO_SIZE x PHOTO_SIZE (cover), convert to JPEG at JPEG_QUALITY, strip EXIF.
  * Throws on invalid input.
  */
-export async function processPhoto(buffer: Buffer): Promise<Buffer> {
+export async function processPhoto(buffer: Buffer): Promise<{ data: Buffer; hasAlpha: boolean }> {
   if (!isValidImageBuffer(buffer)) {
     throw new Error('Unsupported image format. Supported: JPEG, PNG, GIF, WebP');
   }
@@ -126,11 +126,21 @@ export async function processPhoto(buffer: Buffer): Promise<Buffer> {
     throw new Error(`Photo exceeds maximum size of ${MAX_PHOTO_SIZE / (1024 * 1024)}MB`);
   }
 
-  return sharp(buffer)
+  const image = sharp(buffer)
     .resize(PHOTO_SIZE, PHOTO_SIZE, { fit: 'cover' })
-    .rotate() // auto-rotate based on EXIF before stripping
-    .jpeg({ quality: JPEG_QUALITY })
-    .toBuffer();
+    .rotate(); // auto-rotate based on EXIF before stripping
+
+  // Check if the source format has an alpha channel
+  const metadata = await sharp(buffer).metadata();
+  const hasAlpha = metadata.hasAlpha === true;
+
+  if (hasAlpha) {
+    // Preserve transparency — save as PNG
+    return { data: await image.png().toBuffer(), hasAlpha: true };
+  }
+
+  // No alpha — save as JPEG (smaller file size)
+  return { data: await image.jpeg({ quality: JPEG_QUALITY }).toBuffer(), hasAlpha: false };
 }
 
 /**
@@ -199,8 +209,8 @@ export async function savePhoto(
       buffer = parsed.buffer;
     }
 
-    // Process: validate format, enforce size, resize, convert to JPEG, strip EXIF
-    const processed = await processPhoto(buffer);
+    // Process: validate format, enforce size, resize, strip EXIF
+    const { data, hasAlpha } = await processPhoto(buffer);
 
     // Ensure directory exists
     const dirPath = await ensureUserPhotoDir(userId);
@@ -208,12 +218,13 @@ export async function savePhoto(
     // Delete any existing photo for this person (handle extension change)
     await deletePersonPhotos(userId, personId);
 
-    const filename = `${personId}.jpg`;
+    const ext = hasAlpha ? 'png' : 'jpg';
+    const filename = `${personId}.${ext}`;
     const filePath = path.join(dirPath, filename);
 
     // Write atomically: temp file + rename
     const tmpPath = path.join(os.tmpdir(), `nametag-photo-${crypto.randomBytes(8).toString('hex')}`);
-    await fs.writeFile(tmpPath, processed);
+    await fs.writeFile(tmpPath, data);
     await fs.rename(tmpPath, filePath);
 
     return filename;
@@ -233,16 +244,17 @@ export async function savePhotoFromBuffer(
   personId: string,
   buffer: Buffer
 ): Promise<string> {
-  const processed = await processPhoto(buffer);
+  const { data, hasAlpha } = await processPhoto(buffer);
 
   const dirPath = await ensureUserPhotoDir(userId);
   await deletePersonPhotos(userId, personId);
 
-  const filename = `${personId}.jpg`;
+  const ext = hasAlpha ? 'png' : 'jpg';
+  const filename = `${personId}.${ext}`;
   const filePath = path.join(dirPath, filename);
 
   const tmpPath = path.join(os.tmpdir(), `nametag-photo-${crypto.randomBytes(8).toString('hex')}`);
-  await fs.writeFile(tmpPath, processed);
+  await fs.writeFile(tmpPath, data);
   await fs.rename(tmpPath, filePath);
 
   return filename;

@@ -148,12 +148,13 @@ export function personToGraphNode(person: Person, isCenter = false): GraphNode {
   };
 }
 
-export function userToGraphNode(id: string, isCenter = false): GraphNode {
+export function userToGraphNode(id: string, isCenter = false, photo?: string | null): GraphNode {
   return {
     id,
     label: 'You',
     groups: [],
     colors: [],
     isCenter,
+    photo: photo || undefined,
   };
 }

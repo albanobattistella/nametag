@@ -388,7 +388,7 @@ export default function PersonForm({
         if (pendingPhotoBlob) {
           try {
             const photoFormData = new FormData();
-            photoFormData.append('photo', pendingPhotoBlob, 'photo.jpg');
+            photoFormData.append('photo', pendingPhotoBlob, 'photo.png');
             const photoRes = await fetch(`/api/people/${personId}/photo`, {
               method: 'POST',
               body: photoFormData,
@@ -471,7 +471,7 @@ export default function PersonForm({
         <div className="relative group">
           {photoPreview ? (
             /* eslint-disable-next-line @next/next/no-img-element */
-            <img src={photoPreview} alt="" className="w-20 h-20 rounded-full object-cover" />
+            <img src={photoPreview} alt="" className="w-20 h-20 rounded-full object-cover bg-white dark:bg-black" />
           ) : (
             <PersonAvatar
               personId={person?.id || 'new'}

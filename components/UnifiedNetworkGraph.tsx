@@ -389,7 +389,7 @@ export default function UnifiedNetworkGraph({
       .append('circle')
       .attr('r', (d) => (d.isCenter ? nodeRadius.center : nodeRadius.normal))
       .attr('fill', (d) => {
-        if (d.photo) return 'none';
+        if (d.photo) return isDarkTheme ? '#000000' : '#ffffff';
         if (d.isCenter) return '#3B82F6'; // Blue for center
         if (d.colors.length > 0) return d.colors[0];
         return '#9CA3AF';
@@ -404,7 +404,7 @@ export default function UnifiedNetworkGraph({
     // Add photo images for nodes that have photos
     node.filter((d) => !!d.photo)
       .append('image')
-      .attr('href', (d) => `/api/photos/${d.id}`)
+      .attr('href', (d) => d.id.startsWith('user-') ? '/api/photos/user' : `/api/photos/${d.id}`)
       .attr('x', (d) => -(d.isCenter ? nodeRadius.center : nodeRadius.normal))
       .attr('y', (d) => -(d.isCenter ? nodeRadius.center : nodeRadius.normal))
       .attr('width', (d) => (d.isCenter ? nodeRadius.center : nodeRadius.normal) * 2)

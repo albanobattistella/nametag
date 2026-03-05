@@ -34,6 +34,7 @@ async function getCroppedBlob(imageSrc: string, pixelCrop: Area): Promise<Blob> 
         pixelCrop.width,
         pixelCrop.height
       );
+      // Use PNG to preserve transparency; server will convert to JPEG if opaque
       canvas.toBlob(
         (blob) => {
           if (blob) {
@@ -42,8 +43,7 @@ async function getCroppedBlob(imageSrc: string, pixelCrop: Area): Promise<Blob> 
             reject(new Error('Failed to create blob from canvas'));
           }
         },
-        'image/jpeg',
-        0.95
+        'image/png'
       );
     };
     image.onerror = () => reject(new Error('Failed to load image'));

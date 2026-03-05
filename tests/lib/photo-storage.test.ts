@@ -125,21 +125,22 @@ describe('processPhoto', () => {
     await expect(processPhoto(oversized)).rejects.toThrow('exceeds maximum size');
   });
 
-  it('should resize a PNG image to 256x256 JPEG', async () => {
+  it('should resize an opaque PNG image to 256x256 JPEG', async () => {
     const input = await createTestImage(512, 512, 'png');
     const output = await processPhoto(input);
 
-    const metadata = await sharp(output).metadata();
+    const metadata = await sharp(output.data).metadata();
     expect(metadata.width).toBe(256);
     expect(metadata.height).toBe(256);
     expect(metadata.format).toBe('jpeg');
+    expect(output.hasAlpha).toBe(false);
   });
 
   it('should resize a non-square image using cover fit', async () => {
     const input = await createTestImage(800, 400, 'png');
     const output = await processPhoto(input);
 
-    const metadata = await sharp(output).metadata();
+    const metadata = await sharp(output.data).metadata();
     expect(metadata.width).toBe(256);
     expect(metadata.height).toBe(256);
     expect(metadata.format).toBe('jpeg');
@@ -149,7 +150,7 @@ describe('processPhoto', () => {
     const input = await createTestImage(100, 100, 'webp');
     const output = await processPhoto(input);
 
-    const metadata = await sharp(output).metadata();
+    const metadata = await sharp(output.data).metadata();
     expect(metadata.format).toBe('jpeg');
     expect(metadata.width).toBe(256);
   });
@@ -158,7 +159,7 @@ describe('processPhoto', () => {
     const input = await createTestImage(1024, 768, 'jpeg');
     const output = await processPhoto(input);
 
-    const metadata = await sharp(output).metadata();
+    const metadata = await sharp(output.data).metadata();
     expect(metadata.format).toBe('jpeg');
     expect(metadata.width).toBe(256);
     expect(metadata.height).toBe(256);
@@ -168,7 +169,7 @@ describe('processPhoto', () => {
     const input = await createTestImage(300, 300, 'jpeg');
     const output = await processPhoto(input);
 
-    const metadata = await sharp(output).metadata();
+    const metadata = await sharp(output.data).metadata();
     // sharp JPEG output with no explicit withMetadata() call strips EXIF
     expect(metadata.exif).toBeUndefined();
   });
@@ -178,6 +179,26 @@ describe('processPhoto', () => {
     const output = await processPhoto(input);
 
     // Resized 256x256 JPEG should be much smaller than 2000x2000 PNG
-    expect(output.length).toBeLessThan(input.length);
+    expect(output.data.length).toBeLessThan(input.length);
+  });
+
+  it('should preserve transparency as PNG for images with alpha', async () => {
+    // Create a PNG with alpha channel (channels: 4)
+    const input = await sharp({
+      create: {
+        width: 256,
+        height: 256,
+        channels: 4,
+        background: { r: 128, g: 128, b: 128, alpha: 0.5 },
+      },
+    }).png().toBuffer();
+
+    const output = await processPhoto(input);
+
+    const metadata = await sharp(output.data).metadata();
+    expect(metadata.format).toBe('png');
+    expect(metadata.width).toBe(256);
+    expect(metadata.height).toBe(256);
+    expect(output.hasAlpha).toBe(true);
   });
 });
