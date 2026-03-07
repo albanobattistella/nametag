@@ -60,8 +60,18 @@ export const POST = withLogging(async function POST(request: Request) {
         defaultAccountType: 'carddav',
       });
 
-      // Fetch address books to verify connection AND return the list
-      const addressBooks = await client.fetchAddressBooks();
+      // Fetch address books to verify connection AND return the list.
+      // Pass custom props to include addressbook-description, which tsdav
+      // doesn't request by default.
+      const addressBooks = await client.fetchAddressBooks({
+        props: {
+          'd:displayname': {},
+          'cs:getctag': {},
+          'd:resourcetype': {},
+          'd:sync-token': {},
+          'card:addressbook-description': {},
+        },
+      });
 
       return NextResponse.json({
         success: true,

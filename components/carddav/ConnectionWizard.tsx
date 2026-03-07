@@ -87,17 +87,17 @@ export default function ConnectionWizard({ isOpen, onClose }: ConnectionWizardPr
     >
       <div>
         {/* Step indicator */}
-        <div className="flex items-center justify-center mb-8">
+        <div className="flex items-start justify-center mb-8">
           {steps.map((stepKey, index) => {
             const stepNumber = index + 1;
             const isActive = stepNumber === currentStep;
             const isCompleted = stepNumber < currentStep;
 
             return (
-              <div key={stepKey} className="flex items-center">
+              <div key={stepKey} className="flex items-start">
                 {index > 0 && (
                   <div
-                    className={`w-12 h-0.5 mx-1 ${
+                    className={`w-12 h-0.5 mt-4 mx-1 ${
                       isCompleted ? 'bg-primary' : 'bg-gray-300 dark:bg-gray-600'
                     }`}
                   />
