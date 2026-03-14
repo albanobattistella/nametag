@@ -3,6 +3,7 @@ import path from 'path';
 import crypto from 'crypto';
 import sharp from 'sharp';
 import { createModuleLogger } from './logger';
+import { validateServerUrl } from '@/lib/carddav/url-validation';
 
 const log = createModuleLogger('photos');
 
@@ -211,7 +212,9 @@ export async function processPhoto(buffer: Buffer): Promise<{ data: Buffer; hasA
 /**
  * Download a photo from a URL and return its buffer and extension
  */
-async function downloadPhoto(url: string): Promise<{ buffer: Buffer; ext: string }> {
+export async function downloadPhoto(url: string): Promise<{ buffer: Buffer; ext: string }> {
+  await validateServerUrl(url);
+
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
 
