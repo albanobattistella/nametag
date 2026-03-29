@@ -19,6 +19,7 @@ interface JournalSectionProps {
     }>;
   } | null;
   nameOrder: string | null | undefined;
+  locale: string;
 }
 
 function stripMarkdown(text: string): string {
@@ -86,7 +87,7 @@ export default function JournalSection({
               {latestEntry.title}
             </span>
             <span className="text-xs text-muted whitespace-nowrap flex-shrink-0">
-              {new Date(latestEntry.date).toLocaleDateString()}
+              {new Date(latestEntry.date).toLocaleDateString(locale)}
             </span>
           </div>
           <p className="text-xs text-muted line-clamp-2">

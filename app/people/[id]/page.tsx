@@ -103,6 +103,7 @@ export default async function PersonDetailsPage({
     select: {
       dateFormat: true,
       nameOrder: true,
+      language: true,
       name: true,
       surname: true,
       nickname: true,
@@ -690,6 +691,7 @@ export default async function PersonDetailsPage({
                   date: latestJournalEntry.date.toISOString(),
                 } : null}
                 nameOrder={nameOrder}
+                locale={user?.language || 'en'}
               />
 
               {/* Relationship Network Section */}
